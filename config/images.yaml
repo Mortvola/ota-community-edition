@@ -18,7 +18,7 @@ crypt_vault_docker_image: advancedtelematic/crypto-vault:0.3
 device_registry_docker_image: advancedtelematic/device-registry:0.0.1-27-gf10bc67
 director_daemon_docker_image: advancedtelematic/director:0.2.0-27-gcd592e6
 director_docker_image: advancedtelematic/director:0.2.0-27-gcd592e6
-treehub_docker_image: advancedtelematic/treehub:0.1.18
+treehub_docker_image: advancedtelematic/treehub:0.1.27-54-g14f1a6e
 tuf_keyserver_daemon_docker_image: advancedtelematic/tuf-keyserver:0.3.0-16-gfde0883
 tuf_keyserver_docker_image: advancedtelematic/tuf-keyserver:0.3.0-16-gfde0883
 tuf_reposerver_docker_image: advancedtelematic/tuf-reposerver:0.3.0-16-gfde0883

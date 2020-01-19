@@ -53,11 +53,10 @@ spec:
   volumeClaimTemplates:
   - metadata:
       name: mysql-claim
-      annotations:
-        volume.beta.kubernetes.io/storage-class: {{ .storage_class_name }}
     spec:
       accessModes:
         - ReadWriteOnce
+      storageClassName: {{ .storage_class_name }}
       resources:
         requests:
           storage: {{ .mysql_disk }}

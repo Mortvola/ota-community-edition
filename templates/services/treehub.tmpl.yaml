@@ -18,7 +18,7 @@ data:
   SOTA_CORE_PORT: '80'
   TREEHUB_HOSTNAME: http://treehub.{{ .ingress_dns_name }}/api/v2/mydevice
   TREEHUB_LOCAL_STORE_PATH: "/treehub-objects"
-  TREEHUB_STORAGE: local
+  TREEHUB_STORAGE: {{ .treehub_storage }}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -40,10 +40,11 @@ spec:
         cloud.google.com/gke-nodepool: {{ .gke_nodepool }}
 {{ end }}
       {{- if eq .treehub_storage "local"}}
+      securityContext:
+        fsGroup: 2
       initContainers:
       - name: treehub-init
         image: {{ .init_docker_image }}
-        command: ["sh", "-c", "chown --recursive 2:2 /treehub-objects"]
         volumeMounts:
         - name: treehub-claim
           mountPath: /treehub-objects
@@ -79,11 +80,10 @@ spec:
   volumeClaimTemplates:
   - metadata:
       name: treehub-claim
-      annotations:
-        volume.beta.kubernetes.io/storage-class: {{ .storage_class_name }}
     spec:
       accessModes:
         - ReadWriteOnce
+      storageClassName: {{ .storage_class_name }}
       resources:
         requests:
           storage: {{ .treehub_disk }}

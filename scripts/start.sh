@@ -21,7 +21,9 @@ readonly SKIP_WEAVE=${SKIP_WEAVE:-false}
 
 
 check_dependencies() {
+  echo "checking dependencies"
   for cmd in ${DEPENDENCIES:-bash curl make http jq openssl kubectl kops}; do
+	  echo "${cmd}"
     [[ $(command -v "${cmd}") ]] || { echo "Please install '${cmd}'."; exit 1; }
   done
 }
@@ -64,6 +66,7 @@ kill_pid() {
 }
 
 skip_ingress() {
+  local local_yaml=""
   [ -f config/local.yaml ] && local_yaml="config/local.yaml"
 
   value=$(cat config/config.yaml \
@@ -80,7 +83,11 @@ make_template() {
   local extra=""
   [ -f config/local.yaml ] && extra="--values config/local.yaml"
   mkdir -p "$(dirname "${output}")"
-  kops toolbox template \
+  echo "Running kops"
+  echo "Template: ${template}"
+  echo "Output: ${output}"
+  echo "Extra: ${extra}"
+  kops toolbox --v 10 template \
     --template "${template}" \
     --values config/config.yaml \
     --values config/images.yaml \
@@ -88,6 +95,7 @@ make_template() {
     --values config/secrets.yaml \
     ${extra} \
     --output "${output}"
+  echo "Done running kops"
 }
 
 apply_template() {
@@ -147,6 +155,7 @@ new_client() {
 }
 
 new_server() {
+  echo "starting new server"
   ${KUBECTL} get secret gateway-tls &>/dev/null && return 0
   mkdir -p "${SERVER_DIR}" "${DEVICES_DIR}"
 
@@ -177,7 +186,7 @@ create_configs() {
     ${KUBECTL} create configmap bootstrap-rules --from-file config/vaults/bootstrap-rules.json
   }
 
-  declare -a policies=(tuf crypt)
+  declare -a policies=(tuf crypt gateway)
   for policy in "${policies[@]}"; do
     ${KUBECTL} get configmap "${policy}-policy" &>/dev/null || {
       ${KUBECTL} create configmap --from-file "config/vaults/${policy}-policy.hcl" "${policy}-policy"
@@ -248,12 +257,16 @@ start_vaults() {
 
 start_weave() {
   [[ ${SKIP_WEAVE} == true ]] && return 0;
+
+  echo "starting weave"
   local version=$(${KUBECTL} version | base64 | tr -d '\n')
   ${KUBECTL} apply -f "https://cloud.weave.works/k8s/net?k8s-version=${version}"
 }
 
 start_ingress() {
   skip_ingress && return 0;
+
+  echo "starting ingress"
   apply_template templates/ingress
 }
 
@@ -334,6 +347,9 @@ case "${command}" in
     start_infra
     start_vaults
     start_services
+    ;;
+  "start_weave")
+    start_weave
     ;;
   "start_ingress")
     start_ingress

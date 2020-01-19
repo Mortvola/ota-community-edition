@@ -1,0 +1,3 @@
+---
+ingress_dns_name: ota.svrs.cc
+storage_class_name: gp2

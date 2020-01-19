@@ -3,18 +3,20 @@ KUBE_CPU ?= 2
 KUBE_MEM ?= 8192
 
 .PHONY: help start clean new-client new-server start-all start-ingress \
-  start-infra start-vaults start-services print-hosts
+  start-infra start-vaults start-services print-hosts minikube
 .DEFAULT_GOAL := help
 
 help: ## Print this message and exit.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%20s\033[0m : %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-start: cmd-minikube ## Start minikube and all OTA+ services.
-	@minikube ip 2>/dev/null || minikube start --vm-driver $(KUBE_VM) --cpus $(KUBE_CPU) --memory $(KUBE_MEM)
+minikube: cmd-minikube ## Start minikube
+	@sudo minikube ip 2>/dev/null || sudo minikube start --vm-driver $(KUBE_VM) --cpus $(KUBE_CPU) --memory $(KUBE_MEM)
+
+start:  ## Start all OTA+ services.
 	@scripts/start.sh start-all
 
 clean: cmd-minikube ## Delete minikube and all service data.
-	@minikube delete >/dev/null || true
+	@sudo minikube delete >/dev/null || true
 	@rm -rf generated/
 
 new-client: %: start_%       ## Create a new client with a given name.

@@ -95,11 +95,10 @@ spec:
   volumeClaimTemplates:
   - metadata:
       name: kafka-claim
-      annotations:
-        volume.beta.kubernetes.io/storage-class: {{ .storage_class_name }}
     spec:
       accessModes:
         - ReadWriteOnce
+      storageClassName: {{ .storage_class_name }}
       resources:
         requests:
           storage: {{ .kafka_disk }}
